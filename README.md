@@ -1,2 +1,5 @@
-# mcmotd-api
-这是一个基于 Flask 框架的 Minecraft 状态查询api
+# 半 AI 半手搓，至少这个项目证明我在渐渐脱离全自动 AI 给我带来的不利影响
+
+'''
+uv run app.py
+'''

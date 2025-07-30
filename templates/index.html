@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft MOTD Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Minecraft Server MOTD Viewer</h1>
+        
+        <form id="motdForm">
+            <div class="form-group">
+                <label for="ip">Server Address:</label>
+                <input type="text" id="ip" name="ip" 
+                       placeholder="example.com or example.com:25565" required>
+            </div>
+            <button type="submit">Get MOTD</button>
+        </form>
+
+        <div id="resultArea"></div>
+
+        <script>
+            document.getElementById('motdForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const serverAddress = document.getElementById('ip').value;
+                const resultArea = document.getElementById('resultArea');
+                
+                // 显示加载状态
+                resultArea.innerHTML = '<div class="loading">加载中...</div>';
+                
+                try {
+                    const response = await fetch(`/get?ip=${encodeURIComponent(serverAddress)}`);
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        resultArea.innerHTML = `<div class="error">${data.error}</div>`;
+                    } else {
+                        let iconHtml = '<div class="no-icon">No Icon</div>';
+                        if (data.icon) {
+                            iconHtml = `<img src="${data.icon}" alt="Server Icon" width="64" height="64">`;
+                        }
+                        
+                        resultArea.innerHTML = `
+                            <div class="motd-result">
+                                <div class="server-icon">${iconHtml}</div>
+                                <div class="server-info">
+                                    <h2>Server Information</h2>
+                                    <div class="description">${data.description}</div>
+                                    <div class="details">
+                                        <p><strong>Version:</strong> ${data.version}</p>
+                                        <p><strong>Players:</strong> ${data.players}</p>
+                                        <p><strong>Latency:</strong> ${data.latency}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (err) {
+                    resultArea.innerHTML = `<div class="error">请求失败: ${err.message}</div>`;
+                }
+            });
+        </script>
+
+    </div>
+</body>
+</html>

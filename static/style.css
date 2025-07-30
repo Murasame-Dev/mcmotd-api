@@ -1,0 +1,115 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+.error {
+    color: #e74c3c;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 4px;
+    background-color: #fadbd8;
+}
+
+.motd-result {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.server-icon {
+    float: left;
+    margin-right: 20px;
+}
+
+.server-icon img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.server-icon .no-icon {
+    width: 64px;
+    height: 64px;
+    line-height: 64px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #eee;
+    color: #999;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #3498db;
+}
+
+.server-info {
+    overflow: hidden;
+}
+
+.server-info h2 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.description {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.details p {
+    margin: 5px 0;
+}
