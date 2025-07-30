@@ -5,10 +5,10 @@ from flask import Flask, render_template, request, jsonify
 from mcstatus import JavaServer, BedrockServer
 from flask_cors import CORS
 
+# 我尝试了一下外部调用，出乎意料的可以跑
 from srv_resolve import resolve_srv_record
 
 import base64
-import json
 
 app = Flask(__name__)
 app.json.sort_keys = False
@@ -16,6 +16,8 @@ app.json.ensure_ascii = False
 app.json.mimetype = 'application/json;charset=UTF-8'
 app.json.compact = False
 CORS(app)
+
+http_code = None
 
 @app.route('/')
 def index():
@@ -27,6 +29,15 @@ def index():
 def java_motd():
     ip = request.args.get('ip') or ''
     srv = request.args.get('srv', 'true').lower()
+    if not ip:
+        http_code = 400
+        return jsonify(
+            {'status': http_code, 
+             'message': '缺少 ip 参数',
+             'usage': '/java?ip=<ip>&srv=<true|false>',
+             'tip': '第一次解析可能延迟很高，你可以考虑二次调用'
+             }
+            ), http_code
 
     try:
         # 赋予默认变量
@@ -42,30 +53,16 @@ def java_motd():
         if srv not in ['true', 'false']:
             http_code = 400
             srv_error_msg = {
-                'status': http_code,
+                'status': f'Ciallo～(∠・ω< )⌒★',
                 'error': 'srv 参数只能为 true 或 false'
             }
             return jsonify(srv_error_msg), http_code
-
-        if is_srv:
-
-            # 特意用 srv 还带端口号?直接给你...Ciallo～(∠・ω< )⌒★
-            if ':' in ip:
-                http_code = f'Ciallo～(∠・ω< )⌒★'
-                srv_error_wtf_msg = 'SRV解析哪来的端口？请重试(∠・ω< )⌒★'
-
-                srv_error_wtf = {
-                    'status': http_code,
-                    'error': srv_error_wtf_msg
-                    }
-
-                return jsonify(srv_error_wtf), 400
-
+        
+        if is_srv == 'true':
             # 如果没有冒号，尝试SRV解析
             if ':' not in ip:
                 try:
-                    resolved_type = 'srv'
-                    address, port = resolve_srv_record(ip)
+                    address, port, resolved_type = resolve_srv_record(ip)
                 except Exception as e:
                     print(f"SRV记录解析失败: {str(e)}")
 
@@ -93,8 +90,7 @@ def java_motd():
                     srv_warning_msg = f'此解析可能为 srv 解析,已自动转换'
                     # 转换为 srv 解析
                     resolve_srv_record(ip)
-                    resolved_type = 'srv'
-                    address, port = resolve_srv_record(ip)
+                    address, port, resolved_type = resolve_srv_record(ip)
         
         # 调用 mcstatus 获取服务器状态
         server = JavaServer.lookup(f'{address}:{port}')
@@ -152,9 +148,59 @@ def java_motd():
             'ip': f"{address}:{port}",
             'error': unknow_error
         }
-
         return jsonify(unknow_error_msg), http_code
 
+# 这里是 Bedrock 服务器的状态获取逻辑
+# 我已经做过功课了，他没有图标和在线玩家名字显示的！！！
+@app.route('/be')
+def bedrock_motd():
+    ip = request.args.get('ip') or ''
+    if not ip:
+        http_code = 400
+        return jsonify(
+            {'status': f'Ciallo～(∠・ω< )⌒★', 
+             'message': '缺少 ip 参数',
+             'usage': '/be?ip=<ip>',
+             'tip': '第一次解析可能延迟很高，你可以考虑二次调用'
+             }
+            ), http_code
+
+    try:
+        # 赋予默认变量
+        address = ip
+        port = 19132
+        http_code = 200
+
+        if ':' in ip:
+            address, port_str = ip.split(':', 1)
+            port = int(port_str)
+            print(f"使用指定的地址和端口: {address}:{port}")
+
+        server = BedrockServer.lookup(f'{address}:{port}')
+        status = server.status()
+
+        # 准备返回数据
+        bedrock_data = {
+            'status': http_code,
+            'ip': f"{address}:{port}",
+            'description': status.description,
+            'version': status.version.name,
+            'latency': f"{status.latency}ms",
+            'players': {
+                'current': status.players.online,
+                'max': status.players.max
+                }
+        }   
+        return jsonify(bedrock_data), http_code
+    except Exception as e:
+        unknow_error = f"无法获取服务器信息: {str(e)}"
+        http_code = 500
+        unknow_error_msg = {
+            'status': http_code,
+            'ip': f"{address}:{port}",
+            'error': unknow_error
+        }
+        return jsonify(unknow_error_msg), http_code
 
 if __name__ == '__main__':
     app.run(debug=True,port = 5000)

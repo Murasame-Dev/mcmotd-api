@@ -6,5 +6,9 @@ def resolve_srv_record(ip):
         srv_record = answers[0]
         address = str(srv_record.target).rstrip('.')
         port = srv_record.port
+        resolved_type = 'srv'
         print(f"解析SRV记录成功: {address}:{port}")
-        return address, port
+        return address, port, resolved_type
+    else:
+        print(f"未找到SRV记录: {ip}")
+        return ip, 25565, 'normal'
